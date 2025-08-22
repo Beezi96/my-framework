@@ -1,0 +1,41 @@
+# === PHP / Composer ===
+vendor/
+composer.lock
+
+# === Конфиги окружения ===
+.env
+.env.*.local
+
+# === IDE / редакторы ===
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# === macOS ===
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# === Логи / кэш ===
+*.log
+storage/logs/
+storage/cache/
+*.cache
+
+# === MAMP специфичное ===
+/Applications/MAMP/logs/*
+/Applications/MAMP/tmp/*
+
+# === Системные файлы ===
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === Node.js (на будущее, если подключишь npm) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
