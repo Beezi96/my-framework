@@ -27,6 +27,7 @@ class Router
       'callback' => $callback,
       'middleware' => null,
       'method' => $method,
+      'needToken' => true,
     ];
     return $this;
   }
@@ -50,10 +51,19 @@ class Router
   {
     $path = $this->request->getPath();
     $route = $this->matchRoute($path);
-    return '';
+    if (false === $route) {
+      $this->response->setResponseCode(404);
+      echo '404 - Page not found';
+      die;
+    } 
+    if (is_array($route['callback'])){
+      $route['callback'][0] = new $route['callback'][0];
+    }
+
+    return call_user_func($route['callback']);
   }
 
-  protected function matchRoute($path)
+  protected function matchRoute($path): mixed
   {
     foreach($this->routes as $route){
       if (
@@ -61,17 +71,14 @@ class Router
         &&
         in_array($this->request->getMethod(), $route['method'])
       ) {
-        dump($matches);
-        dump($route);
-        dump($this->request->getMethod());
-        dump($this->route_params);
         foreach ($matches as $k => $v) {
           if (is_string($k)){
             $this->route_params[$k] = $v;
           }
         }
-        dump($this->route_params);
+        return $route;
       }
     }
+    return false;
   }
 }
