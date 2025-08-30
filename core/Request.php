@@ -39,4 +39,14 @@ class Request
   {
     return $_POST[$name] ?? $default;
   }
+
+  public function getPath()
+  {
+    return $this->removeQueryString();
+  }
+
+  protected function removeQueryString()
+  {
+    dump($this->uri);
+  }
 }

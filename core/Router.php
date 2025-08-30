@@ -48,6 +48,30 @@ class Router
 
   public function dispatch(): mixed
   {
-    return 'TEST';
+    $path = $this->request->getPath();
+    $route = $this->matchRoute($path);
+    return '';
+  }
+
+  protected function matchRoute($path)
+  {
+    foreach($this->routes as $route){
+      if (
+        preg_match("#^{$route['path']}$#", "{$path}", $matches)
+        &&
+        in_array($this->request->getMethod(), $route['method'])
+      ) {
+        dump($matches);
+        dump($route);
+        dump($this->request->getMethod());
+        dump($this->route_params);
+        foreach ($matches as $k => $v) {
+          if (is_string($k)){
+            $this->route_params[$k] = $v;
+          }
+        }
+        dump($this->route_params);
+      }
+    }
   }
 }
