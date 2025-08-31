@@ -12,7 +12,7 @@ class Request
 
   public function getMethod(): string
   {
-    return strtoupper($_SERVER["REQUEST_METHOD"]);
+    return strtoupper($_SERVER["REQUEST_METHOD"] ?? 'GET');
   }
 
   public function isGet(): bool
@@ -45,8 +45,15 @@ class Request
     return $this->removeQueryString();
   }
 
-  protected function removeQueryString()
+  protected function removeQueryString(): string
   {
-    dump($this->uri);
+    $uri = $this->uri ?? '/';
+
+    $qPos = strpos($uri, '?');
+    $path = ($qPos === false) ? $uri : substr($uri, 0, $qPos);
+
+    $path = '/' . trim($path, '/');
+
+    return $path === '//' ? '/' : $path;
   }
 }

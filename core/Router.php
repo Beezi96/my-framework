@@ -7,6 +7,8 @@ class Router
   protected Response $response;
   protected array $routes = [];
   protected array $route_params = [];
+  protected ?array $current = null;
+  protected array $params = [];
 
   public function __construct(Request $request, Response $response)
   {
@@ -50,33 +52,40 @@ class Router
   public function dispatch(): mixed
   {
     $path = $this->request->getPath();
-    $route = $this->matchRoute($path);
-    if (false === $route) {
-      $this->response->setResponseCode(404);
-      echo '404 - Page not found';
-      die;
-    } 
-    if (is_array($route['callback'])){
-      $route['callback'][0] = new $route['callback'][0];
+    $method = $this->request->getMethod();
+
+    if(!$this->matchRoute($path, $method)) {
+      http_response_code(404);
+      return '404 Not Found';
     }
 
-    return call_user_func($route['callback']);
+    $handler = $this->current['callback'];
+
+    if(is_array($handler) && is_string($handler[0])) {
+      $handler = [new $handler[0](), $handler[1]];
+    }
+
+    return call_user_func_array($handler, $this->params);
   }
 
-  protected function matchRoute($path): mixed
+  protected function matchRoute(string $path, string $method): bool
   {
-    foreach($this->routes as $route){
-      if (
-        preg_match("#^{$route['path']}$#", "{$path}", $matches)
-        &&
-        in_array($this->request->getMethod(), $route['method'])
-      ) {
-        foreach ($matches as $k => $v) {
-          if (is_string($k)){
-            $this->route_params[$k] = $v;
-          }
+    foreach ($this->routes as $route) {
+      $methods = $route['methods'] ?? ($route['method'] ?? 'GET');
+      $methods = array_map('strtoupper', (array)$methods);
+      if (!in_array($method, $methods, true)) {
+        continue;
+      }
+
+      $regex = '#^' . preg_replace('#\{([\w_]+)\}#', '(?P<$1>[^/]+)', $route['path']) . '$#';
+
+      if(preg_match($regex, $path, $m)) {
+        $this->current = $route;
+        $this->params = [];
+        foreach($m as $k => $v) {
+          if (is_string($k)) $this->params[$k] = $v;
         }
-        return $route;
+        return true;
       }
     }
     return false;

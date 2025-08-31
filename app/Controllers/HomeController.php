@@ -13,4 +13,10 @@ class HomeController
   {
     return 'Contact page';
   }
+
+  public function hello(string $name)
+  {
+    return 'Hello, ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+  }
+
 }

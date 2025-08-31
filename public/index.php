@@ -8,7 +8,8 @@ require_once HELPERS . '/helpers.php';
 
 $app = new \Core\Application();
 require_once CONFIG . '/routes.php';
-$app->run();
+echo $app->router->dispatch();
+// $app->run();
 // dump($app);
 // dump(app());
 // dump(request()->getMethod());
